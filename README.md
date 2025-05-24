@@ -14,7 +14,7 @@ Role Variables
 
 Example Playbook
 ----------------
-``yaml
+```yaml
 - name: Update all flatpak packages
   hosts: client
   collections:
