@@ -1,0 +1,34 @@
+---
+# tasks file for flatpak_update
+
+- name: Check if flatpak is available
+  ansible.builtin.stat:
+    path: "{{ flatpak_update_bin_path }}"
+  register: flatpak_bin
+
+- name: Check for Flatpak updates
+  ansible.builtin.command:
+    argv:
+      - "{{ flatpak_update_bin_path }}"
+      - remote-ls
+      - --updates
+  become: true
+  become_user: "{{ flatpak_update_user }}"
+  register: flatpak_updates
+  when: flatpak_bin.stat.exists
+  changed_when: flatpak_updates.stdout_lines | select('match', '^[^ ]') | list | length > 0
+  failed_when: false  # don't fail if there are no remotes or it's empty
+
+- name: Upgrade flatpaks the real dirty way
+  ansible.builtin.command:
+    argv:
+      - "{{ flatpak_update_bin_path }}"
+      - update
+      - --noninteractive
+      - --assumeyes
+  when:
+    - flatpak_bin.stat.exists
+    - flatpak_updates.stdout_lines | select('match', '^[^ ]') | list | length > 0
+  changed_when: true
+  become: true
+  become_user: "{{ flatpak_update_user }}"

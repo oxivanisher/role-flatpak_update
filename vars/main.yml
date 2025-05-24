@@ -1,0 +1,3 @@
+---
+# vars file for flatpak_update
+flatpak_update_bin_path: /usr/bin/flatpak
