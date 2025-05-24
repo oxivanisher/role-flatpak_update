@@ -1,12 +1,12 @@
 ---
 # tasks file for flatpak_update
 
-- name: Check if flatpak is available
+- name: Check if the flatpak binary is available
   ansible.builtin.stat:
     path: "{{ flatpak_update_bin_path }}"
   register: flatpak_bin
 
-- name: Check for Flatpak updates
+- name: Check if updates are available
   ansible.builtin.command:
     argv:
       - "{{ flatpak_update_bin_path }}"
@@ -19,7 +19,7 @@
   changed_when: flatpak_updates.stdout_lines | select('match', '^[^ ]') | list | length > 0
   failed_when: false  # don't fail if there are no remotes or it's empty
 
-- name: Upgrade flatpaks the real dirty way
+- name: Upgrade flatpaks and runtimes to the latest version
   ansible.builtin.command:
     argv:
       - "{{ flatpak_update_bin_path }}"
