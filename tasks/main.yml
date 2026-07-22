@@ -4,7 +4,7 @@
 - name: Check if the flatpak binary is available
   ansible.builtin.stat:
     path: "{{ flatpak_update_bin_path }}"
-  register: flatpak_bin
+  register: flatpak_update_flatpak_bin
 
 - name: Check if updates are available
   ansible.builtin.command:
@@ -14,9 +14,9 @@
       - --updates
   become: true
   become_user: "{{ flatpak_update_user }}"
-  register: flatpak_updates
-  when: flatpak_bin.stat.exists
-  changed_when: flatpak_updates.stdout_lines | select('match', '^[^ ]') | list | length > 0
+  register: flatpak_update_flatpak_updates
+  when: flatpak_update_flatpak_bin.stat.exists
+  changed_when: flatpak_update_flatpak_updates.stdout_lines | select('match', '^[^ ]') | list | length > 0
   failed_when: false  # don't fail if there are no remotes or it's empty
 
 - name: Upgrade flatpaks and runtimes to the latest version
@@ -27,8 +27,8 @@
       - --noninteractive
       - --assumeyes
   when:
-    - flatpak_bin.stat.exists
-    - flatpak_updates.stdout_lines | select('match', '^[^ ]') | list | length > 0
+    - flatpak_update_flatpak_bin.stat.exists
+    - flatpak_update_flatpak_updates.stdout_lines | select('match', '^[^ ]') | list | length > 0
   changed_when: true
   become: true
   become_user: "{{ flatpak_update_user }}"
